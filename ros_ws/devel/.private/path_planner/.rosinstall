@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/robolab1/Documents/ros_ws/devel/.private/path_planner/setup.sh

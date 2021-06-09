@@ -1,0 +1,1 @@
+/home/robolab1/Documents/ros_ws/devel/.private/path_planner/lib/pkgconfig/path_planner.pc
