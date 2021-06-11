@@ -11,7 +11,7 @@ def clean_shutdown(): # Stop robot when Ctrl+C entered
     pub.publish(cmd_vel)   
 
 def callback(msg):
-    if  msg == True: # If obstacle stop robot, else continue.
+    if  msg.data == True: # If obstacle stop robot, else continue.
         cmd_vel.linear.x = 0.0                             
         cmd_vel.angular.z = 0.0
     else:
