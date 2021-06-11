@@ -1,1 +1,1 @@
-/home/robolab1/Documents/ros_ws/devel/.private/catkin_tools_prebuild/setup.zsh
+/home/robolab1/Documents/CleanBot/ros_ws/devel/.private/catkin_tools_prebuild/setup.zsh

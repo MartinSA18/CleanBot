@@ -67,14 +67,14 @@ set(path_planner_CONFIG_INCLUDED TRUE)
 
 # set variables for source/devel/install prefixes
 if("FALSE" STREQUAL "TRUE")
-  set(path_planner_SOURCE_PREFIX /home/robolab1/Documents/ros_ws/src/path_planner)
-  set(path_planner_DEVEL_PREFIX /home/robolab1/Documents/ros_ws/devel/.private/path_planner)
+  set(path_planner_SOURCE_PREFIX /home/robolab1/Documents/CleanBot/ros_ws/src/path_planner)
+  set(path_planner_DEVEL_PREFIX /home/robolab1/Documents/CleanBot/ros_ws/devel/.private/path_planner)
   set(path_planner_INSTALL_PREFIX "")
   set(path_planner_PREFIX ${path_planner_DEVEL_PREFIX})
 else()
   set(path_planner_SOURCE_PREFIX "")
   set(path_planner_DEVEL_PREFIX "")
-  set(path_planner_INSTALL_PREFIX /home/robolab1/Documents/ros_ws/install)
+  set(path_planner_INSTALL_PREFIX /home/robolab1/Documents/CleanBot/ros_ws/install)
   set(path_planner_PREFIX ${path_planner_INSTALL_PREFIX})
 endif()
 
@@ -154,7 +154,7 @@ foreach(library ${libraries})
     set(lib_path "")
     set(lib "${library}-NOTFOUND")
     # since the path where the library is found is returned we have to iterate over the paths manually
-    foreach(path /home/robolab1/Documents/ros_ws/install/lib;/home/robolab1/Documents/ros_ws/devel/lib;/opt/ros/melodic/lib)
+    foreach(path /home/robolab1/Documents/CleanBot/ros_ws/install/lib;/home/robolab1/Documents/CleanBot/ros_ws/devel/lib;/opt/ros/melodic/lib)
       find_library(lib ${library}
         PATHS ${path}
         NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)

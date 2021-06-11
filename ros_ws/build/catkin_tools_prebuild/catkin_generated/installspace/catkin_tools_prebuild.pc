@@ -1,4 +1,4 @@
-prefix=/home/robolab1/Documents/ros_ws/install
+prefix=/home/robolab1/Documents/CleanBot/ros_ws/install
 
 Name: catkin_tools_prebuild
 Description: Description of catkin_tools_prebuild

@@ -2,7 +2,7 @@
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/robolab1/Documents/ros_ws/install")
+  set(CMAKE_INSTALL_PREFIX "/home/robolab1/Documents/CleanBot/ros_ws/install")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -39,7 +39,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/robolab1/Documents/ros_ws/build/path_planner/gtest/googlemock/gtest/cmake_install.cmake")
+  include("/home/robolab1/Documents/CleanBot/ros_ws/build/path_planner/gtest/googlemock/gtest/cmake_install.cmake")
 
 endif()
 

@@ -1,6 +1,6 @@
-devel_space: /home/robolab1/Documents/ros_ws/devel
+devel_space: /home/robolab1/Documents/CleanBot/ros_ws/devel
 install: false
-install_space: /home/robolab1/Documents/ros_ws/install
+install_space: /home/robolab1/Documents/CleanBot/ros_ws/install
 profile: default
-source_space: /home/robolab1/Documents/ros_ws/src
-workspace: /home/robolab1/Documents/ros_ws
+source_space: /home/robolab1/Documents/CleanBot/ros_ws/src
+workspace: /home/robolab1/Documents/CleanBot/ros_ws

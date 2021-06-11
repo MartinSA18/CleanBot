@@ -1,3 +1,13 @@
-Linked: (/home/robolab1/Documents/ros_ws/devel/.private/path_planner/lib/pkgconfig/path_planner.pc, /home/robolab1/Documents/ros_ws/devel/lib/pkgconfig/path_planner.pc)
-Linked: (/home/robolab1/Documents/ros_ws/devel/.private/path_planner/share/path_planner/cmake/path_plannerConfig-version.cmake, /home/robolab1/Documents/ros_ws/devel/share/path_planner/cmake/path_plannerConfig-version.cmake)
-Linked: (/home/robolab1/Documents/ros_ws/devel/.private/path_planner/share/path_planner/cmake/path_plannerConfig.cmake, /home/robolab1/Documents/ros_ws/devel/share/path_planner/cmake/path_plannerConfig.cmake)
+Symlinking /home/robolab1/Documents/CleanBot/ros_ws/devel/lib/pkgconfig/path_planner.pc
+Symlinking /home/robolab1/Documents/CleanBot/ros_ws/devel/share/path_planner/cmake/path_plannerConfig-version.cmake
+Symlinking /home/robolab1/Documents/CleanBot/ros_ws/devel/share/path_planner/cmake/path_plannerConfig.cmake
+Cleaning: (/home/robolab1/Documents/ros_ws/devel/.private/path_planner/cmake.lock, /home/robolab1/Documents/ros_ws/devel/./cmake.lock)
+Cleaning: (/home/robolab1/Documents/ros_ws/devel/.private/path_planner/lib/pkgconfig/path_planner.pc, /home/robolab1/Documents/ros_ws/devel/lib/pkgconfig/path_planner.pc)
+Cleaning: (/home/robolab1/Documents/ros_ws/devel/.private/path_planner/share/path_planner/cmake/path_plannerConfig-version.cmake, /home/robolab1/Documents/ros_ws/devel/share/path_planner/cmake/path_plannerConfig-version.cmake)
+Cleaning: (/home/robolab1/Documents/ros_ws/devel/.private/path_planner/share/path_planner/cmake/path_plannerConfig.cmake, /home/robolab1/Documents/ros_ws/devel/share/path_planner/cmake/path_plannerConfig.cmake)
+Unlinking: /home/robolab1/Documents/ros_ws/devel/lib/pkgconfig/path_planner.pc
+Already unlinked: {}
+Unlinking: /home/robolab1/Documents/ros_ws/devel/share/path_planner/cmake/path_plannerConfig-version.cmake
+Already unlinked: {}
+Unlinking: /home/robolab1/Documents/ros_ws/devel/share/path_planner/cmake/path_plannerConfig.cmake
+Already unlinked: {}

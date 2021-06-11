@@ -1,4 +1,4 @@
-prefix=/home/robolab1/Documents/ros_ws/devel/.private/path_planner
+prefix=/home/robolab1/Documents/CleanBot/ros_ws/devel/.private/path_planner
 
 Name: path_planner
 Description: Description of path_planner
