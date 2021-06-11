@@ -1,8 +1,0 @@
-prefix=/home/robolab1/Documents/CleanBot/ros_ws/devel/.private/path_planner
-
-Name: path_planner
-Description: Description of path_planner
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 
