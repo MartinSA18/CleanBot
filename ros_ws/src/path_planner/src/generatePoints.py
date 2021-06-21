@@ -10,9 +10,9 @@ pntNr = 1
 for i in range(10): # Creates poseList to interate through. Will be seperate function in the future.
     nextPose = Pose2D()
     if i >= 0:
-        nextPose.x = list[i].position.x + 0.1*i
-        nextPose.y = list[i].position.y + 0.1*i
-        nextPose.theta = 0
+        poseList[i].position.x = 0.1*i
+        poseList[i].position.y = 0.1*i
+        poseList[i].position.theta = 0
     poseList.append(pose)
 
 def determineGoal (msg): # Main function of node
