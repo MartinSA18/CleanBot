@@ -34,12 +34,16 @@ def determineGoal(msg, pntNr): # Main function of node
             nextPose.y = poseList[pntNr].y
             nextPose.theta = poseList[pntNr].theta
             break
+        
     
 rospy.init_node('generatePoints')
 pub = rospy.Publisher('/nextPose', Pose2D, queue_size=10)  # Create a 100Hz publisher
+
+theta: 0.0
+r = rospy.Rate(100)
 sub = rospy.Subscriber ('/amcl_pose', PoseWithCovarianceStamped, determineGoal, pntNr) # geometry_msgs/PoseWithCovariance pose
 
 while not rospy.is_shutdown():
    # print(nextPose)
     pub.publish(nextPose)
-    rospy.spin()
+    r.sleep()
