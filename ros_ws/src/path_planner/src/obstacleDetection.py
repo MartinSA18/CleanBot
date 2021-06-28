@@ -7,7 +7,7 @@ from sensor_msgs.msg import LaserScan
 def callback(msg):
     obstacleDetected.data = False # Flag ensures all value evaluated before boolean sent.
     for x in msg.ranges: 
-        if 0 < x < 0.3: # If obstacle within distance, set flag.
+        if 0 < x < 0.2: # If obstacle within distance, set flag.
             obstacleDetected.data = True
     print(obstacleDetected)
             
