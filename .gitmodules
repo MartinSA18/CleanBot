@@ -1,0 +1,9 @@
+[submodule "ros_ws/src/catkin_simple"]
+	path = ros_ws/src/catkin_simple
+	url = git@github.com:catkin/catkin_simple.git
+[submodule "ros_ws/src/cgal_catkin"]
+	path = ros_ws/src/cgal_catkin
+	url = git@github.com:ethz-asl/cgal_catkin.git
+[submodule "ros_ws/src/polygon_coverage_planning"]
+	path = ros_ws/src/polygon_coverage_planning
+	url = git@github.com:ethz-asl/polygon_coverage_planning.git
