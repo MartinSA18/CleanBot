@@ -75,10 +75,12 @@ def generateSamplepath(mode):
 
             waypoints.append(pose)
 
+            
+
 
     print (waypoints)
 
-def generatePathfromCCP(raw_points, scaling=100):
+def generatePathfromCCP(raw_points, scaling=1):
 
     startOrientationVector = [1, 0]
     unit_vector_1 = startOrientationVector / np.linalg.norm(startOrientationVector)
@@ -89,7 +91,7 @@ def generatePathfromCCP(raw_points, scaling=100):
 
     for i in range(len(points)):
         points_x[i] = points[i].x/scaling
-        points_y[i] = -points[i].y/scaling
+        points_y[i] = points[i].y/scaling
 
     for i in range(0,len(points_x)):
         pose = Pose2D()
@@ -104,6 +106,14 @@ def generatePathfromCCP(raw_points, scaling=100):
         pose.theta = angle
 
         waypoints.append(pose)
+
+        if i == len(points)-1:
+            goal_pose = raw_points.markers[3].pose
+            pose = Pose2D()
+            pose.x = goal_pose.position.x
+            pose.y = goal_pose.position.y
+            pose.theta = angle
+            waypoints.append(pose)
 
 
 class FollowPath():
@@ -124,13 +134,13 @@ class FollowPath():
         self.distance_tolerance = 0.15 #rospy.get_param('waypoint_distance_tolerance', 0.0)
         try:
             rospy.loginfo('Retrieving path from CCP')
-            rospy.init_node('CoverageListener', anonymous=True)
+            # rospy.init_node('CoverageListener', anonymous=True)
             generatedPoints = rospy.wait_for_message('/coverage_planner/path_markers', MarkerArray)
             generatePathfromCCP(generatedPoints)
         except:
             rospy.loginfo('Could not access CCP')
-            # rospy.loginfo('Generating sample path...')
-            # generateSamplepath(2)
+            rospy.loginfo('Generating sample path...')
+            generateSamplepath(2)
 
     def execute(self):
         self.client.cancel_all_goals()    
@@ -144,6 +154,7 @@ class FollowPath():
                 break
             # Otherwise publish next waypoint as goal
             goal = MoveBaseGoal()
+            
             goal.target_pose.header.frame_id = "map"
             goal.target_pose.header.stamp = rospy.Time.now()
         # Set waypoint relative to "map" coordinate frame 
@@ -166,15 +177,15 @@ class FollowPath():
                 time.sleep(self.duration)
             else:
                 #This is the loop which exist when the robot is near a certain GOAL point.
-                distance = 10
+                distance = 2 # used to be 10    
                 while(distance > self.distance_tolerance):
                     now = rospy.Time.now()
                     #self.listener.waitForTransform(self.odom_frame_id, self.base_frame_id, now, rospy.Duration(4.0))
                     #trans,rot = self.listener.lookupTransform(self.odom_frame_id,self.base_frame_id, now)s
                     current_pose = rospy.wait_for_message('/amcl_pose', PoseWithCovarianceStamped)
-                    rospy.loginfo('Current AMCL Pose: %s, %s,  dist to next goal: %s' %(current_pose.pose.pose.position.x, current_pose.pose.pose.position.y, distance))
+                    # rospy.loginfo('Current AMCL Pose: %s, %s,  dist to next goal: %s' %(current_pose.pose.pose.position.x, current_pose.pose.pose.position.y, distance))
                     distance = math.sqrt(pow(waypoint.x-current_pose.pose.pose.position.x,2)+pow(waypoint.y-current_pose.pose.pose.position.y,2))
-
+                    rospy.loginfo("\nCurrent goal x:%s y: %s", goal.target_pose.pose.position.x, goal.target_pose.pose.position.y)
 
 
 
@@ -188,5 +199,7 @@ if __name__ == '__main__':
     rospy.on_shutdown(clean_shutdown)
     pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)    
     pathfollower = FollowPath()
+    print("followpath\n")
+    print(waypoints)
     pathfollower.execute()
     rospy.spin()
