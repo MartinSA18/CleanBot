@@ -34,6 +34,23 @@ VIEWING_ANGLE = 2.269
 
 LINEAR_SPEED = 0.1
 ANGULAR_SPEED = 0.5
+orientation_tolerance = 0.01
+steering_angle = 0
+
+cmd_msg = Twist()
+
+cmd_msg.linear.x = 0
+cmd_msg.linear.y = 0
+cmd_msg.linear.z = 0
+
+cmd_msg.angular.x = 0
+cmd_msg.angular.y = 0
+cmd_msg.angular.z = 0
+
+rospy.init_node('Controller', anonymous=True)
+cmd_vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10) 
+current_pose_sub = rospy.Subscriber('/currentPose', Pose2D, queue_size=10) 
+rate = rospy.Rate(100)  
 
 def clean_shutdown(): # Stop robot when Ctrl+C entered
     rospy.loginfo("System is shutting down. Stopping robot...")
@@ -41,7 +58,6 @@ def clean_shutdown(): # Stop robot when Ctrl+C entered
     cmd_vel.linear.x = 0
     cmd_vel.angular.z = 0
     cmd_vel_pub.publish(cmd_vel)   
-
 
 def generateSamplepath(mode):
     startOrientationVector = [1, 0]
@@ -89,9 +105,6 @@ def generateSamplepath(mode):
             pose.theta = angle
 
             waypoints.append(pose)
-
-            
-
 
     print (waypoints)
 
@@ -204,136 +217,103 @@ def denseCPP(path_array, raw_points, distance_delta=0.1, write=False):
         df_dense_path = pd.DataFrame(dense_path)
         df_dense_path.to_csv("/home/robolab1/Documents/CleanBot/ros_ws/src/path_planner/src/saved_path/dense_path.csv", header=False, index=False)
 
+def get_current_pose():
 
-class FollowPath():
+    #current_pose_msg = rospy.wait_for_message('/amcl_pose', PoseWithCovarianceStamped)
+    #print("Pose_Data_AMCL:    ")
+    #print(current_pose_msg.pose.pose.position.x, "    ", current_pose_msg.pose.pose.position.y)
+    #
+    #orientation_q = current_pose_msg.pose.pose.orientation
+    #orientation_list = [orientation_q.x, orientation_q.y, orientation_q.z, orientation_q.w]
+    #(roll, pitch, yaw) = euler_from_quaternion(orientation_list)
+#
+    #pose_to_return = Pose2D()
+    #pose_to_return.x = current_pose_msg.pose.pose.position.x
+    #pose_to_return.y = current_pose_msg.pose.pose.position.y
+    #pose_to_return.theta = yaw
+    pose_to_return = current_pose_sub.wait_for_message('/currentPose'. Pose2D)
+    return pose_to_return
 
-    def __init__(self):
-        self.frame_id = 'map'
-        self.odom_frame_id = 'odom'
-        self.base_frame_id = 'base_footprint'
-        #self.duration = rospy.get_param('~wait_duration', 0.0)
-        # Get a move_base action client
-        #self.client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
-        #rospy.loginfo('Connecting to move_base...')
-        #self.client.wait_for_server()
-        #rospy.loginfo('Connected to move_base.')
-        #rospy.loginfo('Starting a tf listener.')
-        #self.tf = TransformListener()
-        #self.listener = tf.TransformListener()
-        #self.distance_tolerance = 0.15 #rospy.get_param('waypoint_distance_tolerance', 0.0)
-        #try:
-        #    rospy.loginfo('Retrieving path from CCP')
-        #    # rospy.init_node('CoverageListener', anonymous=True)
-        #    generatedPoints = rospy.wait_for_message('/coverage_planner/path_markers', MarkerArray)
-        #    # generatePathfromCCP(generatedPoints)
-        #    path_array = saveCCP(generatedPoints, write=True)
-        #    denseCPP(path_array, generatedPoints, distance_delta=0.2,write=True)
-        #except:
-        #    rospy.loginfo('Could not access CCP')
-        #    rospy.loginfo('Generating sample path...')
-        #    generateSamplepath(2)
+def find_nearest_point(robot_pose):
+    global waypoints
+    #steering_angle = 0
 
-        rospy.loginfo('Generating sample path...')
-        generateSamplepath(2)
+    #last_waypoint_dist = 10000
+    goal_waypoint = waypoints[0]
 
-    def get_current_pose(self):
-        global current_pose_msg
-        current_pose_msg = rospy.wait_for_message('/amcl_pose', PoseWithCovarianceStamped)
+    for waypoint in waypoints:
+
+        #if waypoint == waypoints[:-1]:
+        #   break
         
-        orientation_q = current_pose_msg.pose.pose.orientation
-        orientation_list = [orientation_q.x, orientation_q.y, orientation_q.z, orientation_q.w]
-        (roll, pitch, yaw) = euler_from_quaternion(orientation_list)
-
-        pose_to_return = Pose2D()
-        pose_to_return.x = current_pose_msg.pose.pose.position.x
-        pose_to_return.y = current_pose_msg.pose.pose.position.y
-        pose_to_return.theta = yaw
-
-        return pose_to_return
-    
-    def find_nearest_point(self, robot_pose):
-        global waypoints
-
-        #last_waypoint_dist = 10000
-        goal_waypoint = waypoints[0]
-
-        for waypoint in waypoints:
-
-            #if waypoint == waypoints[:-1]:
-            #   break
-            
-            distance = math.sqrt(pow(waypoint.x-robot_pose.x,2)+pow(waypoint.y-robot_pose.y,2))
-            
-            if distance <= UPPER_DIST and distance >= LOWER_DIST:
-
-                robot_vec_x = math.cos(robot_pose.theta)
-                robot_vec_y = math.sin(robot_pose.theta)
-
-                point_vec_x = waypoint.x - robot.x # maybe plus distance to front robot)
-                point_vec_y = waypoint.y - robot.y
-
-
-                dotprod = robot_vec_x * point_vec_x + robot_vec_y * point_vec_y
-                norm_robot_vec = math.sqrt(robot_vec_x * robot_vec_x + robot_vec_y * robot_vec_y)
-                norm_point_vec = math.sqrt(point_vec_x * point_vec_x + point_vec_y * point_vec_y)
-
-                alpha = math.acos(dotprod/(norm_robot_vec*norm_point_vec))                                 #formula for finding an angle between two vectors
-
-                if alpha <= VIEWING_ANGLE/2:
-                    goal_waypoint = waypoint
-                    rospy.loginfo('Waypoint is found. x: %s, y: %s', goal_waypoint.x, goal.waypoint.y)
-
-
-                    determinant = robot_vec_x * point_vec_y - robot_vec_y * point_vec_x;                      #checking if the aiming vector is on the right hand side or left hand side. (should the cart turn right or left)
-                    
-                    if determinant < 0:
-                        steering_angle = -alpha;
-    
-                break
-
-        return goal_waypoint, steering_angle
-
-
-
-
-
-    def execute(self):
-
-        move_robot = True
-
-        curr_pose = self.get_current_pose()
+        distance = math.sqrt(pow(waypoint.x-robot_pose.x,2)+pow(waypoint.y-robot_pose.y,2))
         
-        goal_waypoint, steering_angle = self.find_nearest_point(curr_pose)
+        if distance <= UPPER_DIST and distance >= LOWER_DIST:
 
-        cmd_msg = Twist()
+            robot_vec_x = math.cos(robot_pose.theta)
+            robot_vec_y = math.sin(robot_pose.theta)
 
-        cmd_msg.linear.x = 0
-        cmd_msg.linear.y = 0
-        cmd_msg.linear.z = 0
+            point_vec_x = waypoint.x - robot_pose.x # maybe plus distance to front robot)
+            point_vec_y = waypoint.y - robot_pose.y
 
-        cmd_msg.angular.x = 0
-        cmd_msg.angular.y = 0
-        cmd_msg.angular.z = 0
 
-        if abs(steering_angle) > orientation_tolerance:
-            cmd_msg.angular.z = ANGULAR_SPEED*np.sign(steering_angle)
+            dotprod = robot_vec_x * point_vec_x + robot_vec_y * point_vec_y
+            norm_robot_vec = math.sqrt(robot_vec_x * robot_vec_x + robot_vec_y * robot_vec_y)
+            norm_point_vec = math.sqrt(point_vec_x * point_vec_x + point_vec_y * point_vec_y)
 
-        if move_robot == True:
-            cmd_msg.linear.x = LINEAR_SPEED
+            alpha = math.acos(dotprod/(norm_robot_vec*norm_point_vec))                                 #formula for finding an angle between two vectors
 
+            if alpha <= VIEWING_ANGLE/2:
+                goal_waypoint = waypoint
+                rospy.loginfo('Waypoint is found. x: %s, y: %s', goal_waypoint.x, goal_waypoint.y)
+
+
+                determinant = robot_vec_x * point_vec_y - robot_vec_y * point_vec_x;                      #checking if the aiming vector is on the right hand side or left hand side. (should the cart turn right or left)
+                
+                if determinant < 0:
+                    steering_angle = -alpha
+                    return goal_waypoint, steering_angle
+                
+                else:
+                    steering_angle = 0
+                    return goal_waypoint, steering_angle
+
+            break
+
+    return 0, 0
+
+def execute():  
+    #global cmd_vel_pub
+    #global orientation_tolerance
+    #global ANGULAR_SPEED
+    #global LINEAR_SPEED
+
+    
+    move_robot = True
+
+    curr_pose = get_current_pose()
+    
+    goal_waypoint, steering_angle = find_nearest_point(curr_pose)
+    rospy.loginfo('Going to waypoint...')
+
+    
+
+    if abs(steering_angle) > orientation_tolerance:
+        cmd_msg.angular.z = 0.5*np.sign(steering_angle)
+
+    if move_robot == True:
+        cmd_msg.linear.x = 0.1
+        
+
+    rospy.loginfo('Publishing velocities...')
+    #print(cmd_msg)
+    
+generateSamplepath(2)
+rospy.on_shutdown(clean_shutdown)
+
+while not rospy.is_shutdown():
+    execute()
+    print(cmd_msg)
     cmd_vel_pub.publish(cmd_msg)
-
-
-
-        
-
-if __name__ == '__main__':
-    rospy.init_node('Controller', anonymous=True)
-    rospy.on_shutdown(clean_shutdown)
-    cmd_vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10) 
-    #CurrentPose_sub = rospy.Subscriber('/amcl_pose', Pose2D, movebase_client)   
-    pathfollower = FollowPath()
-    print("followpath\n")
-    print(waypoints)
-    pathfollower.execute()
-    rospy.spin()
+    #rospy.spin()
+    rate.sleep()
