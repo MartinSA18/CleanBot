@@ -50,6 +50,8 @@ cmd_msg.angular.x = 0
 cmd_msg.angular.y = 0
 cmd_msg.angular.z = 0
 
+goal_waypoint = 0
+
 rospy.init_node('Controller', anonymous=True)
 cmd_vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10) 
 #current_pose_sub = rospy.Subscriber('/currentPose', Pose2D, queue_size=10) 
@@ -109,6 +111,8 @@ def generateSamplepath(mode):
             pose.theta = angle
 
             waypoints.append(pose)
+
+        goal_waypoint = waypoints[1]
 
     #print (waypoints)
 
@@ -261,7 +265,7 @@ def find_nearest_point(robot_pose):
     #steering_angle = 0
 
     #last_waypoint_dist = 10000
-    goal_waypoint = waypoints[0]
+    #goal_waypoint = waypoints[0]
 
     for index, waypoint in enumerate(waypoints):
 
@@ -301,7 +305,7 @@ def find_nearest_point(robot_pose):
                 if index > 0:
                     waypoints.pop(index-1)
 
-                return goal_waypoint, steering_angle
+                #return goal_waypoint, steering_angle
                 
 
 
@@ -317,7 +321,8 @@ def execute():
     curr_pose = get_current_pose()
     
     
-    goal_waypoint, steering_angle = find_nearest_point(curr_pose)
+    #goal_waypoint, steering_angle = find_nearest_point(curr_pose)
+    find_nearest_point(curr_pose)
     rospy.loginfo('Current position.....   x: %s, y: %s  steer: %s', curr_pose.x, curr_pose.y, steering_angle)
     rospy.loginfo('Going to waypoint....   x: %s,  y: %s', goal_waypoint.x, goal_waypoint.y)
 
