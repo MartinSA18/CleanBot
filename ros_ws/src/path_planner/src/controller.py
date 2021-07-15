@@ -264,6 +264,7 @@ def find_nearest_point(robot_pose):
     global waypoints
     #steering_angle = 0
 
+    
     #last_waypoint_dist = 10000
     #goal_waypoint = waypoints[0]
 
@@ -275,6 +276,7 @@ def find_nearest_point(robot_pose):
         distance = math.sqrt(pow(waypoint.x-robot_pose.x,2)+pow(waypoint.y-robot_pose.y,2))
         
         if distance <= UPPER_DIST and distance >= LOWER_DIST:
+            #rospy.loginfo('Point is within distance bounds')
 
             robot_vec_x = math.cos(robot_pose.theta)
             robot_vec_y = math.sin(robot_pose.theta)
@@ -306,6 +308,13 @@ def find_nearest_point(robot_pose):
                     waypoints.pop(index-1)
 
                 return goal_waypoint, steering_angle
+
+    no_point = Pose2D()
+    no_point.x = 0
+    no_point.y = 0
+    no_point.theta = 0
+
+    return no_point, 0
                 
 
 
