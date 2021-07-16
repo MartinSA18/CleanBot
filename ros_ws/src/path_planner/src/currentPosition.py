@@ -39,7 +39,7 @@ if __name__ == '__main__':
     while not rospy.is_shutdown():
         try:
             # listen to transform
-            (trans,rot) = listener.lookupTransform('/map', '/base_link', rospy.Time(0))
+            (trans,rot) = listener.lookupTransform('/map', '/base_footprint', rospy.Time(0))
             # print the transform
             #rospy.loginfo('---------')
             #rospy.loginfo('Translation: ' + str(trans))
