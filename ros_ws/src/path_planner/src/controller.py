@@ -21,23 +21,20 @@ import pandas as pd
 from shapely.geometry import LineString, Point
 from shapely.ops import unary_union
 from geopandas import GeoSeries
-
-
 from turtlesim.msg import Pose
 
-
+PI = 3.1415926535897
+UPPER_DIST = 0.8
+LOWER_DIST = 0.15
+VIEWING_ANGLE = PI
+LINEAR_SPEED = 0.15
+ANGULAR_SPEED = 0.5
+POSITION_SAMPLES = 10
+orientation_tolerance = 0.01
 startOrientationVector = [1, 0]
 unit_vector_1 = startOrientationVector / np.linalg.norm(startOrientationVector)
 waypoints = []
-PI = 3.1415926535897
-
-UPPER_DIST = 0.8
-LOWER_DIST = 0.15
-VIEWING_ANGLE = 2.269
-
-LINEAR_SPEED = 0.1
-ANGULAR_SPEED = 0.5
-orientation_tolerance = 0.01
+alpha_error = [POSITION_SAMPLES]
 #steering_angle = 0
 
 cmd_msg = Twist()
@@ -113,6 +110,18 @@ def generateSamplepath(mode):
             waypoints.append(pose)
 
         #goal_waypoint = waypoints[1]
+    if mode == 3:
+        try:
+            rospy.loginfo('Retrieving path from CCP')
+            # rospy.init_node('CoverageListener', anonymous=True)
+            generatedPoints = rospy.wait_for_message('/coverage_planner/path_markers', MarkerArray)
+            # generatePathfromCCP(generatedPoints)
+            path_array = saveCCP(generatedPoints, write=True)
+            denseCPP(path_array, generatedPoints, distance_delta=0.2,write=True)
+        except:
+            rospy.loginfo('Could not access CCP')
+            rospy.loginfo('Generating sample path...')
+            generateSamplepath(2)
 
     #print (waypoints)
 
@@ -255,7 +264,6 @@ def get_current_pose():
     #pose_to_return.y = current_pose_msg.y
     #pose_to_return.theta = current_pose_msg.theta
 
-
     pose_to_return = rospy.wait_for_message('/currentPose', Pose2D)
 
     return pose_to_return
@@ -305,7 +313,7 @@ def find_nearest_point(robot_pose):
                     steering_angle = alpha
                     
                 if index > 0:
-                    waypoints.pop(index-1)
+                    waypoints.pop(0)
 
                 return goal_waypoint, steering_angle
 
@@ -315,8 +323,16 @@ def find_nearest_point(robot_pose):
     no_point.theta = 0
 
     return no_point, 0
-                
 
+def angular_PID(alpha):
+    Ki = 0.3
+    Kp = 0.7
+    if(len(alpha_error)>POSITION_SAMPLES):
+        alpha_error.pop(0) # Erases oldest error in the error array.
+    alpha_error.append(alpha) # Adds current error to the list.
+    print(alpha_error)
+    angular_speed = Kp*alpha + Ki*sum(alpha_error)/len(alpha_error)
+    return angular_speed
 
 def execute():  
     #global cmd_vel_pub
@@ -324,9 +340,7 @@ def execute():
     #global ANGULAR_SPEED
     #global LINEAR_SPEED
 
-    
     move_robot = True
-
     curr_pose = get_current_pose()
     
     
@@ -337,11 +351,16 @@ def execute():
 
     
 
-    if abs(steering_angle) > orientation_tolerance:
-        cmd_msg.angular.z = ANGULAR_SPEED*np.sign(steering_angle)
+    #if abs(steering_angle) > orientation_tolerance:
+    #    cmd_msg.angular.z = ANGULAR_SPEED*np.sign(steering_angle)
+
+    cmd_msg.angular.z = angular_PID(steering_angle)
 
     if move_robot == True:
-        cmd_msg.linear.x = LINEAR_SPEED
+        if abs(steering_angle) > np.deg2rad(10):
+            cmd_msg.linear.x = 0.05
+        else:
+            cmd_msg.linear.x = LINEAR_SPEED
         
 
     rospy.loginfo('Publishing velocities....  x: %s, omega: %s', cmd_msg.linear.x, cmd_msg.angular.z)
@@ -355,12 +374,11 @@ def execute():
     
     #print(cmd_msg)
     
-generateSamplepath(2)
+generateSamplepath(3)
 rospy.on_shutdown(clean_shutdown)
 
 while not rospy.is_shutdown():
     execute()
-    #print(cmd_msg)
     cmd_vel_pub.publish(cmd_msg)
     #rospy.spin()
     rate.sleep()
